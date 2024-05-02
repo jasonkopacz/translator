@@ -3,98 +3,79 @@
   <head>
     <title>Grab HTML</title>
     <style>
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
+      body {
+        width: 200px;
+        height: auto;
+        text-align: center;
+        padding: 10px;
+      }
+      .slidecontainer {
+        width: 100%;
+        margin: 10px 0px;
       }
 
-      /* Hide default HTML checkbox */
-      .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      /* The slider */
       .slider {
-        position: absolute;
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 25px;
+        background: #d3d3d3;
+        outline: none;
+        border-radius: 10px;
+        opacity: 0.7;
+        -webkit-transition: 0.2s;
+        transition: opacity 0.2s;
+      }
+
+      .slider:hover {
+        opacity: 1;
+      }
+
+      .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        background: #04aa6d;
+        border-radius: 20px;
         cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: 0.4s;
-        transition: 0.4s;
       }
 
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        -webkit-transition: 0.4s;
-        transition: 0.4s;
+      .slider::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        background: #04aa6d;
+        border-radius: 20px;
+        cursor: pointer;
       }
 
-      input:checked + .slider {
-        background-color: #2196f3;
+      button {
+        margin: 10px 0px;
       }
 
-      input:focus + .slider {
-        box-shadow: 0 0 1px #2196f3;
-      }
-
-      input:checked + .slider:before {
-        -webkit-transform: translateX(26px);
-        -ms-transform: translateX(26px);
-        transform: translateX(26px);
-      }
-
-      /* Rounded sliders */
-      .slider.round {
-        border-radius: 34px;
-      }
-
-      .slider.round:before {
-        border-radius: 50%;
+      .settings {
+        text-align: center;
       }
     </style>
   </head>
   <body>
-    <form id="settings">
-      <label class="switch" for="divs">
-        Divs
-        <input type="checkbox" class="toggle-switch" id="divs" name="divs" />
-        <span class="slider round"></span>
-      </label>
-      <label class="switch" for="headers">
-        Headers
-        <input
-          type="checkbox"
-          class="toggle-switch"
-          id="headers"
-          name="headers"
-        />
-        <span class="slider round"></span>
-      </label>
-      <label class="switch" for="content">
-        Content
-        <input
-          type="checkbox"
-          class="toggle-switch"
-          id="content"
-          name="content"
-        />
-        <span class="slider round"></span>
-      </label>
-      <button type="submit">Grab HTML</button>
-    </form>
+    <div class="form-container">
+      <form id="settings">
+        <h3>Percentage of words you would like translate on the page.</h3>
+        <div class="slidecontainer">
+          <label id="label" for="range"> </label>
+          <input
+            type="range"
+            min="1"
+            max="100"
+            value="50"
+            class="slider"
+            id="range"
+          />
+        </div>
+        <button type="submit">Grab HTML</button>
+      </form>
+    </div>
     <script src="popup.js" type="module"></script>
   </body>
 </html>

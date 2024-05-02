@@ -4,6 +4,7 @@
   "name": "Word Translator",
   "description": "Extension to translate a small amount of words on the page to help with language learning",
   "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://api.deepl.com/v2/translate"],
   "background": {
     "service_worker": "src/pages/background/index.jsx",
     "type": "module"
