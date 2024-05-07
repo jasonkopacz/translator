@@ -1,26 +1,6 @@
-// async function translateText(text, targetLang) {
-//   const apiKey = "279a2e9d-83b3-c416-7e2d-f721593e42a0:fx";
-//   // const apiKey = process.env.DEEP_L_AUTH_KEY || "";
-//   const url = `https://api-free.deepl.com/v2/translate`;
-
-//   const params = new URLSearchParams();
-//   params.append("auth_key", apiKey);
-//   params.append("text", text);
-//   params.append("target_lang", targetLang);
-
-//   try {
-//     const response = await fetch(url, {
-//       method: "POST",
-//       body: params
-//     });
-//     console.log(response);
-//     const data = await response.json();
-//     console.log(data);
-//     return data.translations[0].text;
-//   } catch (error) {
-//     console.error("Error translating text:", error);
-//   }
-// }
+chrome.storage.local.get(["nodes"]).then((result) => {
+  console.log("got nodes");
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   let slider = document.getElementById("range");
@@ -30,110 +10,78 @@ document.addEventListener("DOMContentLoaded", function () {
   slider.oninput = function () {
     output.innerHTML = `${this.value}%`;
   };
-
-  // form submit listener
-  const form = document.getElementById("settings");
-  form.addEventListener(
-    "submit",
-    function (event) {
-      event.preventDefault();
-      const percentValue = document.getElementById("range").value;
-      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.scripting.executeScript({
-          target: { tabId: tabs[0].id },
-          func: async () => {
-            const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
-
-            const url = "https://api-free.deepl.com/v2/translate";
-
-            const headers = {
-              Authorization: `DeepL-Auth-Key ${apiKey}`
-            };
-
-            const params = new URLSearchParams();
-            params.append("text", "hello");
-            params.append("target_lang", "DE");
-
-            try {
-              const response = await fetch(url, {
-                method: "POST",
-                headers: headers,
-                body: params
-              });
-
-              const data = await response.json();
-              console.log(data);
-              if (response.ok) {
-                return data.translations[0].text;
-              } else {
-                console.error("Translation failed:", data);
-                return null;
-              }
-            } catch (error) {
-              console.error("Error translating text:", error);
-              return null;
-            }
-            // const apiKey = "279a2e9d-83b3-c416-7e2d-f721593e42a0:fx";
-            // // const apiKey = process.env.DEEP_L_AUTH_KEY || "";
-            // const url = `https://api-free.deepl.com/v2/translate`;
-
-            // const params = new URLSearchParams();
-            // params.append("auth_key", apiKey);
-            // params.append("text", "hello");
-            // // params.append("text", text);
-            // params.append("target_lang", "SP");
-            // // params.append("target_lang", targetLang);
-
-            // try {
-            //   const response = await fetch(url, {
-            //     method: "POST",
-            //     body: params
-            //   });
-            //   console.log(response);
-            //   const data = await response.json();
-            //   console.log(data);
-            //   return data.translations[0].text;
-            // } catch (error) {
-            //   console.error("Error translating text:", error);
-            // }
-          },
-          args: [percentValue]
-        });
-      });
-    },
-    false
-  );
 });
 
-function grabPageHtml(data) {
-  console.log(data);
-  let text = document.getElementsByTagName("h1");
-  console.log(text);
-  let collectedWords = [];
-  Array.from(text).forEach((item) => {
-    collectedWords << [item.innerText];
-    console.log(item.innerText);
+const form = document.getElementById("settings");
+form.addEventListener("submit", function (event) {
+  event.preventDefault();
+  const languageValue = form.languages.value;
+  const percentValue = form.range.value;
+
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const url = tabs[0].url;
+    console.log(url);
+    if (!url.startsWith("chrome://")) {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: async (languageValue, percentValue) => {
+          console.log(percentValue);
+          console.log(languageValue);
+          console.log("made it");
+
+          const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
+          const url = "https://api-free.deepl.com/v2/translate";
+          const headers = {
+            Authorization: `DeepL-Auth-Key ${apiKey}`
+          };
+          const params = new URLSearchParams();
+          params.append("text", "hello");
+          params.append("target_lang", "DE");
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: headers,
+              body: params
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+              return data.translations[0].text;
+            } else {
+              console.error("Translation failed:", data);
+              return null;
+            }
+          } catch (error) {
+            console.error("Error translating text:", error);
+            return null;
+          }
+        },
+        args: [percentValue, languageValue]
+      });
+    } else {
+      console.error("Cannot execute script on chrome:// URLs");
+    }
   });
-  // translate_words(words)
-  // const elementsWithInnerText = Array.from(allElements).filter((el) =>
-  //   el.innerText ? el.innerText.trim().length > 0 : null
-  // );
-
-  // const categorizedByTagName = elementsWithInnerText.reduce((acc, el) => {
-  //   const tagName = el.tagName;
-  //   if (!acc[tagName]) {
-  //     acc[tagName] = [];
-  //   }
-  //   acc[tagName].push(el);
-  //   return acc;
-  // }, {});
-
-  // console.log(categorizedByTagName);
+});
+function selectWords(textNodes, percentage) {
+  let allWords = [];
+  textNodes.forEach((node) => {
+    let words = node.text.split(/\s+/);
+    allWords = allWords.concat(words.map((word) => ({ word, node })));
+  });
+  let selectionCount = Math.floor(allWords.length * (percentage / 100));
+  let selectedWords = [];
+  while (selectedWords.length < selectionCount) {
+    let index = Math.floor(Math.random() * allWords.length);
+    selectedWords.push(allWords.splice(index, 1)[0]);
+  }
+  return selectedWords;
 }
 
-// (async function translateText(words) {
-//   const targetLang = "fr";
-//   const result = await translator.translateText(words, null, targetLang);
-//   console.log(result);
-//   // word.innerHTML = result;
-// })();
+function replaceWords(words, translations) {
+  words.forEach((entry, index) => {
+    let originalText = entry.node.nodeValue;
+    let translatedWord = translations[index];
+    entry.node.nodeValue = originalText.replace(entry.word, translatedWord);
+  });
+}

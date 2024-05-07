@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "name": "Word Translator",
   "description": "Extension to translate a small amount of words on the page to help with language learning",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": ["https://api.deepl.com/v2/translate"],
   "background": {
     "service_worker": "src/pages/background/index.jsx",
@@ -22,7 +22,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
-      "js": ["scripts/content.jsx"],
+      "js": ["content.js"],
       "css": ["contentStyle.css"]
     }
   ]
