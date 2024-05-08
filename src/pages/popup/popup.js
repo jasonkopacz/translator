@@ -22,27 +22,56 @@ form.addEventListener("submit", function (event) {
         func: async (languageValue, percentValue) => {
           // console.log(percentValue);
           // console.log(languageValue);
-
-          const nodes = await chrome.storage.local
-            .get(["nodes"])
-            .then((result) => {
-              return result.nodes;
-            });
+          chrome.storage.local.get(null, (items) => {
+            // Retrieves all items in storage
+            console.log(items);
+            for (let id in items) {
+              let parentNode = document.getElementById(id);
+              if (parentNode) {
+                // Assuming only one text node per parent, which is a simplification
+                let textNode = [...parentNode.childNodes].find(
+                  (node) => node.nodeType === Node.TEXT_NODE
+                );
+                if (textNode) {
+                  textNode.nodeValue = textNode.nodeValue.replace(
+                    textNode.nodeValue,
+                    "replacement"
+                  );
+                }
+              }
+            }
+          });
 
           let allWords = [];
-          console.log(nodes);
           nodes.forEach((node) => {
             let words = node.text.split(/\s+/);
             allWords = allWords.concat(words.map((word) => ({ word, node })));
           });
-          let selectionCount = Math.floor(allWords.length * (10 / 100));
+          let selectionCount = Math.floor(allWords.length * (100 / 100));
           let selectedWords = [];
           while (selectedWords.length < selectionCount) {
             let index = Math.floor(Math.random() * allWords.length);
             selectedWords.push(allWords.splice(index, 1)[0]);
           }
-          return selectedWords;
+          // return selectedWords;
+          // console.log(selectedWords);
+          selectedWords.forEach((entry, index) => {
+            let originalText = entry.node.text;
+            // let translatedWord = translations[index];
+            entry.node.text = originalText.replace(entry.word, "test");
+          });
+          chrome.storage.local.clear(() => {
+            if (chrome.runtime.lastError) {
+              console.error(
+                "Error clearing local storage:",
+                chrome.runtime.lastError
+              );
+            } else {
+              console.log("Local storage has been cleared.");
+            }
+          });
 
+          return;
           // const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
           // const url = "https://api-free.deepl.com/v2/translate";
           // const headers = {

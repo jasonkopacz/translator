@@ -1,47 +1,30 @@
-function extractTextNodes(node, nodes = []) {
-  function generatePath(node) {
-    if (!node.parentNode || node === document.body) return "";
-    let siblings = Array.from(node.parentNode.childNodes).filter(
-      (n) => n.nodeType === Node.ELEMENT_NODE || n.nodeType === Node.TEXT_NODE
-    );
-    let index = siblings.indexOf(node) + 1; // XPath is 1-based index
-    let nodeName = node.nodeType === Node.TEXT_NODE ? "#text" : node.nodeName;
-
-    return `${generatePath(node.parentNode)}/${nodeName}[${index}]`;
-  }
-
-  if (node.nodeType === Node.TEXT_NODE) {
-    if (node.nodeValue.trim() !== "" && isNodeVisible(node.parentNode)) {
-      let path = generatePath(node);
-      // console.log(path);
-      nodes.push({ text: node.nodeValue, path: path });
+function assignIDsAndStoreTextNodes(element, idCounter = { count: 0 }) {
+  element.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      if (child.textContent.trim() !== "" && isVisible(child)) {
+        if (!child.parentNode.id) {
+          child.parentNode.id = `textNode-${idCounter.count++}`;
+        }
+        chrome.storage.local.set({
+          [child.parentNode.id]: child.textContent.trim()
+        });
+      }
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      if (!["SCRIPT", "STYLE"].includes(child.tagName)) {
+        assignIDsAndStoreTextNodes(child, idCounter);
+      }
     }
-  } else {
-    if (
-      node.nodeType === Node.ELEMENT_NODE &&
-      !["SCRIPT", "STYLE"].includes(node.tagName)
-    ) {
-      node.childNodes.forEach((child) => extractTextNodes(child, nodes));
-    }
-  }
-  return nodes;
+  });
 }
 
-const textNodes = extractTextNodes(document.body);
-chrome.storage.local.set({ nodes: textNodes }).then(() => {
-  // console.log("Text nodes data is set");
-  // console.log(textNodes);
-});
-
-function isNodeVisible(element) {
-  if (!element) {
+function isVisible(node) {
+  if (node.nodeType !== Node.TEXT_NODE) {
     return false;
   }
-  const style = window.getComputedStyle(element);
-  return (
-    style.display !== "none" &&
-    style.visibility !== "hidden" &&
-    element.offsetWidth > 0 &&
-    element.offsetHeight > 0
-  );
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  const rects = range.getClientRects();
+  return rects.length > 0 && rects[0].width > 0 && rects[0].height > 0;
 }
+
+assignIDsAndStoreTextNodes(document.body);
