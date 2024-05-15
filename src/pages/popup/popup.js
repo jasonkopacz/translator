@@ -20,105 +20,54 @@ form.addEventListener("submit", function (event) {
       chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         func: async (languageValue, percentValue) => {
-          chrome.storage.local.get(null, (items) => {
-            const countToProcess = Math.floor(
-              Object.entries(items).length * (percentValue / 100)
-            );
-            function pickRandomNodes(nodes, count) {
-              if (nodes == {} || nodes === null) return;
-              const shuffled = Object.entries(nodes).sort(
-                () => 0.5 - Math.random()
+          return new Promise((resolve, reject) => {
+            chrome.storage.local.get(null, async (items) => {
+              const countToProcess = Math.floor(
+                Object.entries(items).length * (percentValue / 100)
               );
-              return shuffled.slice(0, count);
-            }
-            const selectedNodes = pickRandomNodes(items, countToProcess);
 
-            selectedNodes.map((node) => {
-              let parentNode = document.getElementById(node[0]);
-              if (parentNode) {
-                let textNode = [...parentNode.childNodes].find(
-                  (node) => node.nodeType === Node.TEXT_NODE
+              function pickRandomNodes(nodes, count) {
+                if (nodes == {} || nodes === null) return [];
+                const shuffled = Object.entries(nodes).sort(
+                  () => 0.5 - Math.random()
                 );
-                if (textNode) {
-                  textNode.nodeValue = textNode.nodeValue.replace(
-                    textNode.nodeValue,
-                    "replacement"
-                  );
+                return shuffled.slice(0, count);
+              }
+
+              const selectedNodes = pickRandomNodes(items, countToProcess);
+              // .map((entry) => entry[1])
+              // .join(" ");
+              console.log(selectedNodes);
+              const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
+              const url =
+                "https://cors-anywhere.herokuapp.com/https://api-free.deepl.com/v2/translate";
+              const headers = {
+                Authorization: `DeepL-Auth-Key ${apiKey}`
+              };
+              const params = new URLSearchParams();
+              params.append("text", selectedNodes);
+              params.append("target_lang", languageValue);
+
+              try {
+                const response = await fetch(url, {
+                  method: "POST",
+                  headers: headers,
+                  body: params
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                  resolve(data.translations[0].text);
+                } else {
+                  console.error("Translation failed:", data);
+                  resolve(null);
                 }
+              } catch (error) {
+                console.error("Error translating text:", error);
+                resolve(null);
               }
             });
-            // for (let id in selectedNodes) {
-            //   debugger;
-            //   let parentNode = document.getElementById(id);
-            //   if (parentNode) {
-            //     let textNode = [...parentNode.childNodes].find(
-            //       (node) => node.nodeType === Node.TEXT_NODE
-            //     );
-            //     if (textNode) {
-            //       textNode.nodeValue = textNode.nodeValue.replace(
-            //         textNode.nodeValue,
-            //         "replacement"
-            //       );
-            //     }
-            //   }
-            // }
           });
-
-          // let allWords = [];
-          // nodes.forEach((node) => {
-          //   let words = node.text.split(/\s+/);
-          //   allWords = allWords.concat(words.map((word) => ({ word, node })));
-          // });
-          // let selectionCount = Math.floor(allWords.length * (100 / 100));
-          // let selectedWords = [];
-          // while (selectedWords.length < selectionCount) {
-          //   let index = Math.floor(Math.random() * allWords.length);
-          //   selectedWords.push(allWords.splice(index, 1)[0]);
-          // }
-          // return selectedWords;
-          // console.log(selectedWords);
-          // selectedWords.forEach((entry, index) => {
-          //   let originalText = entry.node.text;
-          //   // let translatedWord = translations[index];
-          //   entry.node.text = originalText.replace(entry.word, "test");
-          // });
-          chrome.storage.local.clear(() => {
-            if (chrome.runtime.lastError) {
-              console.error(
-                "Error clearing local storage:",
-                chrome.runtime.lastError
-              );
-            } else {
-              console.log("Local storage has been cleared.");
-            }
-          });
-
-          return;
-          // const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
-          // const url = "https://api-free.deepl.com/v2/translate";
-          // const headers = {
-          //   Authorization: `DeepL-Auth-Key ${apiKey}`
-          // };
-          // const params = new URLSearchParams();
-          // params.append("text", "hello");
-          // params.append("target_lang", "DE");
-          // try {
-          //   const response = await fetch(url, {
-          //     method: "POST",
-          //     headers: headers,
-          //     body: params
-          //   });
-          //   const data = await response.json();
-          //   if (response.ok) {
-          //     return data.translations[0].text;
-          //   } else {
-          //     console.error("Translation failed:", data);
-          //     return null;
-          //   }
-          // } catch (error) {
-          //   console.error("Error translating text:", error);
-          //   return null;
-          // }
         },
         args: [languageValue, percentValue]
       });
@@ -128,29 +77,27 @@ form.addEventListener("submit", function (event) {
   });
 });
 
-// function selectWords(textNodes, percentage) {
-//   let allWords = [];
-//   console.log(textNodes);
-//   Array.from(textNodes).forEach((node) => {
-//     let words = node.text.split(/\s+/);
-//     allWords = allWords.concat(words.map((word) => ({ word, node })));
-//   });
-//   console.log(allWords);
-//   let selectionCount = Math.floor(allWords.length * (percentage / 100));
-//   console.log(selectionCount);
-//   let selectedWords = [];
-//   while (selectedWords.length < selectionCount) {
-//     let index = Math.floor(Math.random() * allWords.length);
-//     selectedWords.push(allWords.splice(index, 1)[0]);
+// selectedNodes.map((node) => {
+//   let parentNode = document.getElementById(node[0]);
+//   if (parentNode) {
+//     let textNode = [...parentNode.childNodes].find(
+//       (node) => node.nodeType === Node.TEXT_NODE
+//     );
+//     if (textNode) {
+//       textNode.nodeValue = textNode.nodeValue.replace(
+//         textNode.nodeValue,
+//         "replacement"
+//       );
+//     }
 //   }
-//   console.log(selectWords);
-//   return selectedWords;
-// }
-
-// function replaceWords(words, translations) {
-//   words.forEach((entry, index) => {
-//     let originalText = entry.node.nodeValue;
-//     let translatedWord = translations[index];
-//     entry.node.nodeValue = originalText.replace(entry.word, translatedWord);
-//   });
-// }
+// });
+// chrome.storage.local.clear(() => {
+//   if (chrome.runtime.lastError) {
+//     console.error(
+//       "Error clearing local storage:",
+//       chrome.runtime.lastError
+//     );
+//   } else {
+//     console.log("Local storage has been cleared.");
+//   }
+// });
