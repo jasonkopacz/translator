@@ -3,14 +3,14 @@
   "manifest_version": 3,
   "name": "Word Translator",
   "description": "Extension to translate a small amount of words on the page to help with language learning",
-  "permissions": ["storage", "scripting", "activeTab", "webRequest"],
+  "permissions": ["storage", "scripting", "activeTab", "background"],
   "host_permissions": [
     "https://*.deepl.com/*",
-    "https://cors-anywhere.herokuapp.com/*",
+    "https://7yj344gtre.execute-api.us-east-2.amazonaws.com/translate",
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "src/pages/background/index.jsx",
+    "service_worker": "src/pages/background/background.js",
     "type": "module"
   },
   "action": {

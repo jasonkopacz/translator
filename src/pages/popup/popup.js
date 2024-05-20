@@ -11,15 +11,15 @@ document.addEventListener("DOMContentLoaded", function () {
 const form = document.getElementById("settings");
 form.addEventListener("submit", function (event) {
   event.preventDefault();
-  const languageValue = document.getElementById("languages").value;
+  const source_lang = document.getElementById("languages_from").value;
+  const languageValue = document.getElementById("languages_to").value;
   const percentValue = document.getElementById("range").value;
-
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const url = tabs[0].url;
     if (!url.startsWith("chrome://")) {
       chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
-        func: async (languageValue, percentValue) => {
+        func: async (source_lang, languageValue, percentValue) => {
           return new Promise((resolve, reject) => {
             chrome.storage.local.get(null, async (items) => {
               const countToProcess = Math.floor(
@@ -31,45 +31,124 @@ form.addEventListener("submit", function (event) {
                 const shuffled = Object.entries(nodes).sort(
                   () => 0.5 - Math.random()
                 );
-                return shuffled.slice(0, count);
+                const fullNodes = shuffled.slice(0, count);
+                const textNodes = shuffled.map((text) => text[1]);
+                return { fullNodes, textNodes };
               }
 
-              const selectedNodes = pickRandomNodes(items, countToProcess);
-              // .map((entry) => entry[1])
-              // .join(" ");
-              console.log(selectedNodes);
-              const apiKey = "c933f5cc-cec4-4a2d-8210-ff9375af93b8:fx";
-              const url =
-                "https://cors-anywhere.herokuapp.com/https://api-free.deepl.com/v2/translate";
-              const headers = {
-                Authorization: `DeepL-Auth-Key ${apiKey}`
-              };
-              const params = new URLSearchParams();
-              params.append("text", selectedNodes);
-              params.append("target_lang", languageValue);
+              const { fullNodes, textNodes } = pickRandomNodes(
+                items,
+                countToProcess
+              );
 
-              try {
-                const response = await fetch(url, {
-                  method: "POST",
-                  headers: headers,
-                  body: params
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                  resolve(data.translations[0].text);
-                } else {
-                  console.error("Translation failed:", data);
-                  resolve(null);
+              chrome.runtime.sendMessage(
+                {
+                  action: "translateText",
+                  text: textNodes,
+                  source_lang: source_lang,
+                  languageValue: languageValue
+                },
+                (response) => {
+                  if (response.success) {
+                    console.log("Translation:", response.translation);
+                    chrome.storage.local.clear(() => {
+                      if (chrome.runtime.lastError) {
+                        console.error(
+                          "Error clearing local storage:",
+                          chrome.runtime.lastError
+                        );
+                      } else {
+                        console.log("Local storage has been cleared.");
+                      }
+                    });
+                  } else {
+                    console.error("Translation failed:", response.error);
+                    chrome.storage.local.clear(() => {
+                      if (chrome.runtime.lastError) {
+                        console.error(
+                          "Error clearing local storage:",
+                          chrome.runtime.lastError
+                        );
+                      } else {
+                        console.log("Local storage has been cleared.");
+                      }
+                    });
+                  }
+                  return;
                 }
-              } catch (error) {
-                console.error("Error translating text:", error);
-                resolve(null);
-              }
+              );
+              return;
+              // const proxyUrl =
+              //   "https://translate-liart-two.vercel.app/api/translate";
+
+              // const body = JSON.stringify({
+              //   text: textNodes.join("\n"),
+              //   target_lang: languageValue
+              // });
+              // const headers = {
+              //   "Content-Type": "application/json"
+              // };
+              // console.log("full");
+              // console.log(fullNodes);
+              // console.log("text");
+              // console.log(textNodes);
+
+              // try {
+              //   const response = await fetch(proxyUrl, {
+              //     method: "POST",
+              //     headers: headers,
+              //     body: body
+              //   });
+              //   const data = await response.json();
+              //   console.log(data);
+
+              //   if (response.ok) {
+              //     data.translations[0].text.split(",");
+
+              //     resolve(data.translations[0].text);
+              //     chrome.storage.local.clear(() => {
+              //       if (chrome.runtime.lastError) {
+              //         console.error(
+              //           "Error clearing local storage:",
+              //           chrome.runtime.lastError
+              //         );
+              //       } else {
+              //         console.log("Local storage has been cleared.");
+              //       }
+              //     });
+              //   } else {
+              //     console.error("Translation failed:", data);
+              //     chrome.storage.local.clear(() => {
+              //       if (chrome.runtime.lastError) {
+              //         console.error(
+              //           "Error clearing local storage:",
+              //           chrome.runtime.lastError
+              //         );
+              //       } else {
+              //         console.log("Local storage has been cleared.");
+              //       }
+              //     });
+              //     resolve(null);
+              //   }
+              // } catch (error) {
+              //   console.error("Error translating text:", error);
+              //   console.log(error);
+              //   chrome.storage.local.clear(() => {
+              //     if (chrome.runtime.lastError) {
+              //       console.error(
+              //         "Error clearing local storage:",
+              //         chrome.runtime.lastError
+              //       );
+              //     } else {
+              //       console.log("Local storage has been cleared.");
+              //     }
+              //   });
+              //   resolve(null);
+              // }
             });
           });
         },
-        args: [languageValue, percentValue]
+        args: [source_lang, languageValue, percentValue]
       });
     } else {
       console.error("Cannot execute script on chrome:// URLs");
@@ -89,15 +168,5 @@ form.addEventListener("submit", function (event) {
 //         "replacement"
 //       );
 //     }
-//   }
-// });
-// chrome.storage.local.clear(() => {
-//   if (chrome.runtime.lastError) {
-//     console.error(
-//       "Error clearing local storage:",
-//       chrome.runtime.lastError
-//     );
-//   } else {
-//     console.log("Local storage has been cleared.");
 //   }
 // });

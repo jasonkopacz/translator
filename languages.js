@@ -33,12 +33,20 @@ const languages = [
   ["ZH", "Chinese (simplified)"]
 ];
 
-const selectElement = document.getElementById("languages");
+const languages_to = document.getElementById("languages_to");
+const languages_from = document.getElementById("languages_from");
 
-languages.forEach((language) => {
-  const [code, name] = language;
-  const option = document.createElement("option");
-  option.value = code;
-  option.text = name;
-  selectElement.appendChild(option);
-});
+const populateSelect = (element) =>
+  languages.forEach((language) => {
+    const [code, name] = language;
+    const option = document.createElement("option");
+    option.value = code;
+    option.text = name;
+    if (code === "EN-US" && element.id === "languages_from") {
+      option.selected = true;
+    }
+
+    element.appendChild(option);
+  });
+populateSelect(languages_to);
+populateSelect(languages_from);
