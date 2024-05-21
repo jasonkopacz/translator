@@ -1,23 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Grab HTML</title>
+    <title>Translate</title>
     <style>
       body {
-        width: 200px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        width: 300px;
         height: auto;
         text-align: center;
-        padding: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        border-radius: 8px;
+      }
+      .form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      form {
+        width: 100%;
+      }
+      label {
+        font-size: 14px;
+        color: #333;
+        margin: 10px 0 5px;
+      }
+      select {
+        width: 50%;
+        padding: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .slider {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
       }
       .slidecontainer {
         width: 100%;
-        margin: 10px 0px;
+        margin: 20px 0;
       }
 
       .slider {
         -webkit-appearance: none;
         appearance: none;
-        width: 100%;
         height: 25px;
         background: #d3d3d3;
         outline: none;
@@ -37,7 +74,7 @@
         width: 25px;
         height: 25px;
         background: #04aa6d;
-        border-radius: 20px;
+        border-radius: 50%;
         cursor: pointer;
       }
 
@@ -45,16 +82,28 @@
         width: 25px;
         height: 25px;
         background: #04aa6d;
-        border-radius: 20px;
+        border-radius: 50%;
         cursor: pointer;
       }
 
       button {
-        margin: 10px 0px;
+        width: 100%;
+        padding: 10px;
+        background-color: #04aa6d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #037a54;
       }
 
       .settings {
-        text-align: center;
+        text-align: left;
+        width: 100%;
       }
     </style>
     <script src="../../../languages.js" type="module" defer></script>
@@ -62,10 +111,14 @@
   <body>
     <div class="form-container">
       <form id="settings">
-        <label for="languages_from">From</label>
-        <select id="languages_from" name="languages_from" value="EN"></select>
-        <label for="languages_to">To</label>
-        <select id="languages_to" name="languages_to"></select>
+        <div class="field">
+          <label for="languages_from">From</label>
+          <select id="languages_from" name="languages_from" value="EN"></select>
+        </div>
+        <div class="field">
+          <label for="languages_to">To</label>
+          <select id="languages_to" name="languages_to"></select>
+        </div>
         <h3>Percentage of words you would like translate.</h3>
         <div class="slidecontainer">
           <label id="label" for="range"> </label>
@@ -78,7 +131,7 @@
             id="range"
           />
         </div>
-        <button type="submit">Grab HTML</button>
+        <button type="submit">Translate</button>
       </form>
     </div>
     <script src="popup.js" type="module"></script>
