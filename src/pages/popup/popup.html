@@ -105,34 +105,6 @@
         text-align: left;
         width: 100%;
       }
-
-      [data-original-text] {
-        position: relative;
-      }
-
-      [data-original-text]:hover::after {
-        content: attr(data-original-text);
-        position: absolute;
-        background: black;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-        z-index: 1000;
-        display: block;
-        opacity: 1;
-      }
-
-      [data-original-text]:hover {
-        visibility: visible;
-      }
-
-      [data-original-text]::after {
-        transition: none;
-      }
     </style>
     <script src="../../../languages.js" type="module" defer></script>
   </head>

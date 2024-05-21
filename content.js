@@ -34,3 +34,24 @@ function isVisible(node) {
 assignIDsAndStoreTextNodes(document.body);
 // const context = document.title;
 // chrome.storage.local.set({ context: context });
+
+function injectCustomStyles() {
+  const style = document.createElement("style");
+  style.type = "text/css";
+  style.innerHTML = `
+    .tooltip {
+      position: absolute;
+      background-color: black;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.5s;
+      z-index: 1000;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+injectCustomStyles();
