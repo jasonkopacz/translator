@@ -57,6 +57,11 @@ form.addEventListener("submit", function (event) {
                           (node) => node.nodeType === Node.TEXT_NODE
                         );
                         if (textNode) {
+                          parentNode.setAttribute(
+                            "data-original-text",
+                            textNode.nodeValue
+                          );
+                          parentNode.setAttribute("title", textNode.nodeValue);
                           textNode.nodeValue = textNode.nodeValue.replace(
                             textNode.nodeValue,
                             response.translations[index].text
