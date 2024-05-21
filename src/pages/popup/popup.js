@@ -32,7 +32,9 @@ form.addEventListener("submit", function (event) {
                   () => 0.5 - Math.random()
                 );
                 const fullNodes = shuffled.slice(0, count);
-                const textNodes = shuffled.map((text) => text[1]);
+                const textNodes = fullNodes.map((text) => text[1]);
+                console.log("textNodes", textNodes);
+                console.log("fullNodes", fullNodes);
                 return { fullNodes, textNodes };
               }
 
@@ -50,7 +52,27 @@ form.addEventListener("submit", function (event) {
                 },
                 (response) => {
                   if (response.success) {
-                    console.log("Translation:", response.translation);
+                    console.log("nodes", fullNodes);
+                    console.log(response.translations);
+                    fullNodes.map((node, index) => {
+                      let parentNode = document.getElementById(node[0]);
+                      if (parentNode) {
+                        let textNode = [...parentNode.childNodes].find(
+                          (node) => node.nodeType === Node.TEXT_NODE
+                        );
+                        if (textNode) {
+                          textNode.nodeValue = textNode.nodeValue.replace(
+                            textNode.nodeValue,
+                            response.translations[index].text
+                          );
+                        }
+                      }
+                      // console.log(node);
+                      // debugger;
+                      // if (node && response.translations[index]) {
+                      // node.textContent = response.translations[index].text;
+                    });
+                    // }
                     chrome.storage.local.clear(() => {
                       if (chrome.runtime.lastError) {
                         console.error(

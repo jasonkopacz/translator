@@ -5,22 +5,31 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const handler = async (event) => {
-  const authKey = process.env.DEEPL_AUTH_KEY;
+  const authKey = process.env.DEEPL_AUTH_KEY_2;
   const serverUrl = process.env.DEEPL_SERVER_URL;
   const translator = new Translator(authKey, { serverUrl: serverUrl });
 
   console.log("Received event:", JSON.stringify(event, null, 2));
-  console.log("Received event:", event);
 
   if (event.requestContext.http.method === "POST") {
-    const {
-      queryStringParameters: { target_lang, text }
-    } = event;
-    console.log("Text to translate:", text.trim());
-    console.log("lang:", target_lang.trim());
+    const body = JSON.parse(event.body);
+    console.log("body", body);
+    const text = body.text;
+    const target_lang = body.target_lang;
+    const source_lang = body.source_lang;
+    const context = body.context;
+    console.log("context", context);
+    console.log("Text to translate:", body.text);
+    console.log("to:", body.target_lang.trim());
+    console.log("from:", body.source_lang.trim());
 
     try {
-      const result = await translator.translateText(text, null, target_lang);
+      const result = await translator.translateText(
+        text,
+        source_lang,
+        target_lang,
+        context
+      );
       console.log("Translation result:", result);
 
       return {
@@ -44,19 +53,19 @@ export const handler = async (event) => {
             "GET, POST, OPTIONS, PUT, PATCH, DELETE",
           "Access-Control-Allow-Headers": "X-Requested-With,content-type"
         },
-        body: JSON.stringify({ error: "Internal Server Error" })
+        body: JSON.stringify({ error: error })
       };
     }
   } else {
     return {
-      statusCode: 405,
+      statusCode: 404,
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods":
           "GET, POST, OPTIONS, PUT, PATCH, DELETE",
         "Access-Control-Allow-Headers": "X-Requested-With,content-type"
       },
-      body: JSON.stringify({ error: "Method Not Allowed" })
+      body: JSON.stringify({ error: "Unable to process request" })
     };
   }
 };

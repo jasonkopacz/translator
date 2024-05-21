@@ -1,4 +1,4 @@
-const languages = [
+const target_languages = [
   ["AR", "Arabic"],
   ["BG", "Bulgarian"],
   ["CS", "Czech"],
@@ -32,21 +32,64 @@ const languages = [
   ["UK", "Ukrainian"],
   ["ZH", "Chinese (simplified)"]
 ];
-
+const source_languages = [
+  ["AR", "Arabic"],
+  ["BG", "Bulgarian"],
+  ["CS", "Czech"],
+  ["DA", "Danish"],
+  ["DE", "German"],
+  ["EL", "Greek"],
+  ["EN", "English"],
+  ["ES", "Spanish"],
+  ["ET", "Estonian"],
+  ["FI", "Finnish"],
+  ["FR", "French"],
+  ["HU", "Hungarian"],
+  ["ID", "Indonesian"],
+  ["IT", "Italian"],
+  ["JA", "Japanese"],
+  ["KO", "Korean"],
+  ["LT", "Lithuanian"],
+  ["LV", "Latvian"],
+  ["NB", "Norwegian"],
+  ["NL", "Dutch"],
+  ["PL", "Polish"],
+  ["PT", "Portuguese"],
+  ["RO", "Romanian"],
+  ["RU", "Russian"],
+  ["SK", "Slovak"],
+  ["SL", "Slovenian"],
+  ["SV", "Swedish"],
+  ["TR", "Turkish"],
+  ["UK", "Ukrainian"],
+  ["ZH", "Chinese"]
+];
 const languages_to = document.getElementById("languages_to");
 const languages_from = document.getElementById("languages_from");
 
-const populateSelect = (element) =>
-  languages.forEach((language) => {
+const populateTargetLanguages = () =>
+  target_languages.forEach((language) => {
     const [code, name] = language;
     const option = document.createElement("option");
     option.value = code;
     option.text = name;
-    if (code === "EN-US" && element.id === "languages_from") {
+    if (code === "ES") {
       option.selected = true;
     }
 
-    element.appendChild(option);
+    languages_to.appendChild(option);
   });
-populateSelect(languages_to);
-populateSelect(languages_from);
+const populateSourceLanguages = () =>
+  source_languages.forEach((language) => {
+    const [code, name] = language;
+    const option = document.createElement("option");
+    option.value = code;
+    option.text = name;
+    if (code === "EN") {
+      option.selected = true;
+    }
+
+    languages_from.appendChild(option);
+  });
+populateSourceLanguages(languages_from);
+populateTargetLanguages(languages_to);

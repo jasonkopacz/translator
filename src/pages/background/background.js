@@ -36,7 +36,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       })
       .then((data) => {
         console.log("data", data);
-        sendResponse({ success: true, translation: data.text });
+        console.log(request);
+        sendResponse({ success: true, translations: data });
       })
       .catch((error) => {
         console.log("error", error);
