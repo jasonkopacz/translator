@@ -33,8 +33,6 @@ form.addEventListener("submit", function (event) {
                 );
                 const fullNodes = shuffled.slice(0, count);
                 const textNodes = fullNodes.map((text) => text[1]);
-                console.log("textNodes", textNodes);
-                console.log("fullNodes", fullNodes);
                 return { fullNodes, textNodes };
               }
 
@@ -52,8 +50,6 @@ form.addEventListener("submit", function (event) {
                 },
                 (response) => {
                   if (response.success) {
-                    console.log("nodes", fullNodes);
-                    console.log(response.translations);
                     fullNodes.map((node, index) => {
                       let parentNode = document.getElementById(node[0]);
                       if (parentNode) {
@@ -67,12 +63,7 @@ form.addEventListener("submit", function (event) {
                           );
                         }
                       }
-                      // console.log(node);
-                      // debugger;
-                      // if (node && response.translations[index]) {
-                      // node.textContent = response.translations[index].text;
                     });
-                    // }
                     chrome.storage.local.clear(() => {
                       if (chrome.runtime.lastError) {
                         console.error(
@@ -81,6 +72,7 @@ form.addEventListener("submit", function (event) {
                         );
                       } else {
                         console.log("Local storage has been cleared.");
+                        return;
                       }
                     });
                   } else {
@@ -93,6 +85,7 @@ form.addEventListener("submit", function (event) {
                         );
                       } else {
                         console.log("Local storage has been cleared.");
+                        return;
                       }
                     });
                   }
@@ -100,73 +93,6 @@ form.addEventListener("submit", function (event) {
                 }
               );
               return;
-              // const proxyUrl =
-              //   "https://translate-liart-two.vercel.app/api/translate";
-
-              // const body = JSON.stringify({
-              //   text: textNodes.join("\n"),
-              //   target_lang: languageValue
-              // });
-              // const headers = {
-              //   "Content-Type": "application/json"
-              // };
-              // console.log("full");
-              // console.log(fullNodes);
-              // console.log("text");
-              // console.log(textNodes);
-
-              // try {
-              //   const response = await fetch(proxyUrl, {
-              //     method: "POST",
-              //     headers: headers,
-              //     body: body
-              //   });
-              //   const data = await response.json();
-              //   console.log(data);
-
-              //   if (response.ok) {
-              //     data.translations[0].text.split(",");
-
-              //     resolve(data.translations[0].text);
-              //     chrome.storage.local.clear(() => {
-              //       if (chrome.runtime.lastError) {
-              //         console.error(
-              //           "Error clearing local storage:",
-              //           chrome.runtime.lastError
-              //         );
-              //       } else {
-              //         console.log("Local storage has been cleared.");
-              //       }
-              //     });
-              //   } else {
-              //     console.error("Translation failed:", data);
-              //     chrome.storage.local.clear(() => {
-              //       if (chrome.runtime.lastError) {
-              //         console.error(
-              //           "Error clearing local storage:",
-              //           chrome.runtime.lastError
-              //         );
-              //       } else {
-              //         console.log("Local storage has been cleared.");
-              //       }
-              //     });
-              //     resolve(null);
-              //   }
-              // } catch (error) {
-              //   console.error("Error translating text:", error);
-              //   console.log(error);
-              //   chrome.storage.local.clear(() => {
-              //     if (chrome.runtime.lastError) {
-              //       console.error(
-              //         "Error clearing local storage:",
-              //         chrome.runtime.lastError
-              //       );
-              //     } else {
-              //       console.log("Local storage has been cleared.");
-              //     }
-              //   });
-              //   resolve(null);
-              // }
             });
           });
         },
@@ -177,18 +103,3 @@ form.addEventListener("submit", function (event) {
     }
   });
 });
-
-// selectedNodes.map((node) => {
-//   let parentNode = document.getElementById(node[0]);
-//   if (parentNode) {
-//     let textNode = [...parentNode.childNodes].find(
-//       (node) => node.nodeType === Node.TEXT_NODE
-//     );
-//     if (textNode) {
-//       textNode.nodeValue = textNode.nodeValue.replace(
-//         textNode.nodeValue,
-//         "replacement"
-//       );
-//     }
-//   }
-// });

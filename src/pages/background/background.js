@@ -6,10 +6,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: "No text to translate" });
       return true;
     }
-    console.log(request["text"]);
     const text = request["text"].filter((item) => {
-      console.log(typeof item);
-      console.log(item);
       return item.trim() !== "";
     });
 
@@ -31,16 +28,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       })
     })
       .then((response) => {
-        console.log("response", response);
         return response.json();
       })
       .then((data) => {
-        console.log("data", data);
-        console.log(request);
         sendResponse({ success: true, translations: data });
       })
       .catch((error) => {
-        console.log("error", error);
         console.error("Error translating text:", error);
         sendResponse({ success: false, error: error });
       });

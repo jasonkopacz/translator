@@ -9,19 +9,12 @@ export const handler = async (event) => {
   const serverUrl = process.env.DEEPL_SERVER_URL;
   const translator = new Translator(authKey, { serverUrl: serverUrl });
 
-  console.log("Received event:", JSON.stringify(event, null, 2));
-
   if (event.requestContext.http.method === "POST") {
     const body = JSON.parse(event.body);
-    console.log("body", body);
     const text = body.text;
     const target_lang = body.target_lang;
     const source_lang = body.source_lang;
     const context = body.context;
-    console.log("context", context);
-    console.log("Text to translate:", body.text);
-    console.log("to:", body.target_lang.trim());
-    console.log("from:", body.source_lang.trim());
 
     try {
       const result = await translator.translateText(
@@ -30,7 +23,6 @@ export const handler = async (event) => {
         target_lang,
         context
       );
-      console.log("Translation result:", result);
 
       return {
         statusCode: 200,
