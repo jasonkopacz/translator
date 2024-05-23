@@ -7,7 +7,6 @@ function assignIDsAndStoreTextNodes(element, idCounter = { count: 0 }) {
 
       if (isValidText) {
         if (!child.parentNode.id) {
-          debugger;
           child.parentNode.id = `textNode-${idCounter.count++}`;
         }
         chrome.storage.local.set({ [child.parentNode.id]: trimmedText });
