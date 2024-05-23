@@ -23,7 +23,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       body: JSON.stringify({
         text: text,
         source_lang: source_lang,
-        target_lang: target_lang
+        target_lang: target_lang,
+        timeout: 8000
         // context: context
       })
     })
